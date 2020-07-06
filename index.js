@@ -9,6 +9,20 @@ module.exports = function(paths, chokidarOpts, opts) {
   if (!process.send) {
     let child, start;
     if (require.main === module) {  // CLI
+      if (process.argv[2].startsWith('--inspect')) {
+        const ia = process.argv[2].split('=', 2)[1];
+        let host, port;
+        if (ia) {
+          [host, port] = ia.split(':', 2);
+          if (host && !port) {
+            port = host;
+            host = undefined;
+          }
+          if (port) port = Number(port);
+        }
+        require('inspector').open(port, host);
+        process.argv.splice(2, 1);
+      }
       let bin = process.argv[2];
       if (bin[0] !== '/' && fs.existsSync(bin))
         bin = path.join(paths, bin);
